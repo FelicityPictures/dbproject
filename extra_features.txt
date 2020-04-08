@@ -1,3 +1,1 @@
-Extra features:
-- React to a photo
-- Manage tags
+Working alone, no extra features required
