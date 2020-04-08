@@ -1,0 +1,45 @@
+<html>
+<head>
+</head>
+<body>
+<form action="/newgroup" method="POST">
+	<h1>Create new group</h1>
+	<input type="text" name="groupName" placeholder="groupName" required/> </br>
+	<input type="text" name="description" placeholder="description"/> </br>
+
+	{% for line in availableUsers %}
+		<input type="checkbox" name="members" value="{{line.username}}"/><label for="{{line.username}}">{{line.username}}</label> </br>
+	{% endfor %}
+
+	<input type="submit" value=Create />
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+</form>
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+<h1>{{username}}'s groups</h1>
+<table>
+	<th>Group Name</th>
+	<th>Group Creator</th>
+
+{% for line in group_list %}
+	<tr>
+		<td>{{line.groupName}}</td>
+		<td>{{line.groupCreator}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+</br>
+<a href="/logout">Logout</a>
+
+</body>
+
+
+</html>

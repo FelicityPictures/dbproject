@@ -1,0 +1,88 @@
+<html>
+<head>
+</head>
+<body>
+<form action="/post" method="POST">
+	<h1>Welcome {{username}}</h1>
+	<input type="text" name="photo" placeholder="photo" required/> </br>
+	<input type="text" name="caption" placeholder="caption" required/> </br>
+	<input type="checkbox" name="followers" value="all"><label for="all">Share with all followers</label></br>
+	<div id="groups">
+	{% for line in groups %}
+		<input type="checkbox" name="followers" value="{{line.groupName}};{{line.groupCreator}}"><label for="{{line.groupName}},{line.groupCreator}}">{{line.groupName}}, {{line.groupCreator}}</label></br>
+	{% endfor %}
+	</div>
+	<input type="submit" value=Post />
+</form>
+
+
+<a href="/connections">Connections</a> </br>
+<a href="/groups">Your Groups</a>
+</br>
+</br>
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+Here are your posts:
+
+<table>
+	<th>pID</th>
+	<th>Posting Date</th>
+	<th>File Path</th>
+	<th>Caption</th>
+	<th>Poster</th>
+	<th>Other people's reactions</th>
+	<th>React</th>
+
+{% for line in posts %}
+	<tr>
+		<td>{{line.pID}}</td>
+		<td>{{line.postingDate}}</td>
+		<td>{{line.filePath}}</td>
+		<td>{{line.caption}}</td>
+		<td>{{line.firstName}} {{line.lastName}}</td>
+		<td>
+			{% for react in reacts %}
+			{% if react.pID == line.pID %}
+				<p>
+					<b>{{react.username}}</b> reacted with {{react.emoji}} emoji, saying "{{react.comment}}" at {{react.reactionTime}}
+				</p>
+	    {% endif %}
+			{% endfor %}
+		</td>
+		<td>
+			<form action="/react" method="POST">
+				<input type="hidden" name="pID" value="{{line.pID}}">
+
+				<input type="radio" name="react" value="like">
+			  <label for="like">Like</label></br>
+			  <input type="radio" name="react" value="love">
+			  <label for="love">Love</label></br>
+			  <input type="radio" name="react" value="laugh">
+			  <label for="laugh">Laugh</label></br>
+			  <input type="radio" name="react" value="wow">
+			  <label for="wow">Wow</label></br>
+			  <input type="radio" name="react" value="sad">
+			  <label for="sad">Sad</label></br>
+			  <input type="radio" name="react" value="angry">
+			  <label for="angry">Angry</label></br>
+				<input type="text" name="comment" placeholder="comment"/> </br>
+				<input type="submit" value=React />
+			</form>
+		</td>
+	</tr>
+{% endfor %}
+</table>
+</br>
+</br>
+</br>
+<a href="/logout">Logout</a>
+
+</body>
+
+
+</html>
