@@ -1,7 +1,8 @@
-<html>
-<head>
-</head>
-<body>
+{% extends "master.html" %}
+
+{% block body %}
+<main>
+
 <form action="/newgroup" method="POST">
 	<h1>Create new group</h1>
 	<input type="text" name="groupName" placeholder="groupName" required/> </br>
@@ -37,9 +38,8 @@
 </table>
 
 </br>
-<a href="/logout">Logout</a>
-
-</body>
 
 
-</html>
+</main>
+
+{% endblock %}

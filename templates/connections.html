@@ -1,8 +1,7 @@
-<html>
-<head>
-</head>
-<body>
+{% extends "master.html" %}
 
+{% block body %}
+<main>
 
 {{username}}'s Pending Requests
 </br>
@@ -88,9 +87,7 @@ Other people
 
 
 
-<a href="/logout">Logout</a>
 
-</body>
+</main>
 
-
-</html>
+{% endblock %}
