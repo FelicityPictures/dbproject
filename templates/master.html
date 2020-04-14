@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang='en-US'>
+  <head>
+    <meta charset='UTF-8'>
+    <meta name='viewport'
+          content='width=device-width, initial-scale=1.0'>
+    <title>Finstagram</title>
+
+    <!-- Favicon -->
+    <!-- <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}"> -->
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Ubuntu:wght@400;500&display=swap" rel="stylesheet">
+
+  	<!-- CSS -->
+  	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+
+    {% block head %}
+    {% endblock %}
+
+  </head>
+
+  <body>
+
+    <header>
+      <nav class="topHeader">
+        <a href="/home" class="topHeader--link topHeader--link__main">Finstagram</a>
+
+        <a href="/logout" class="topHeader--link">Logout</a>
+      </nav>
+
+      <nav class="sidebar">
+        <a href="/connections" class="sidebar--link">Connections</a>
+        <a href="/groups" class="sidebar--link">Your Groups</a>
+      </nav>
+    </header>
+
+    {% block body %}
+    {% endblock %}
+
+    <footer>
+      <!-- page specific scripts -->
+      {% block footer %}
+      {% endblock %}
+
+    </footer>
+
+  </body>
+
+</html>

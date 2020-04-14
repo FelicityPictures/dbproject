@@ -1,0 +1,139 @@
+body{
+  display: flex;
+  justify-content: center;
+  font-family: 'Ubuntu', sans-serif;
+  margin: 0px;
+  padding: 0px;
+  background-color: #F0F2F5;
+}
+
+header{
+  position: fixed;
+  width: 100%;
+  z-index: 0;
+}
+
+.topHeader {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 10px 20px;
+  border: 1px solid black;
+}
+
+.topHeader--link{
+  text-decoration: none;
+  color: black;
+  font-size: 1em;
+}
+.topHeader--link__main{
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 1.25em;
+}
+
+.sidebar{
+  width: 15%;
+  height: 100%;
+  top: 50px;
+  left: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 50px 20px;
+  box-sizing: border-box;
+  border: 1px solid black;
+}
+.sidebar--link{
+  text-decoration: none;
+  color: black;
+  font-size: 1em;
+  margin-bottom: 30px;
+}
+
+main{
+  margin-top: 50px;
+  width: 50%;
+  z-index: 1;
+}
+
+h1{
+  font-family: 'Lato', sans-serif;
+}
+
+h2, b{
+  font-weight: 500;
+}
+
+input[type=text]{
+  border-radius: 3px;
+  border: 1px solid #757575;
+  padding: 5px 10px;
+}
+
+.post{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 50px;
+  background-color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid #ffb3ff;
+}
+
+.post--name{
+  font-size: 1em;
+  margin: 10px 0px;
+}
+
+.post--image{
+  width: 100%;
+  border: 1px solid blue;
+  margin: 5px 0px;
+}
+
+.comments{
+  width: 100%;
+}
+
+.reactions{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+details{
+  /* width: 100%; */
+  cursor: pointer;
+  border: 1px solid green;
+  margin-bottom: 20px;
+}
+
+details > * {
+  cursor: auto;
+}
+
+.postForm{
+  width: 100%;
+  border: 1px solid #ffb3ff;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+
+.postForm--caption{
+  /* height: 50px; */
+}
