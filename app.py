@@ -1,10 +1,15 @@
 import time
-
+import os
 import pymysql.cursors
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for
+from werkzeug.utils import secure_filename
 
+# upload folder
+UPLOAD_FOLDER = ".\\uploads"
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 # Initialize the app from Flask
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Configure MySQL
 conn = pymysql.connect(host='localhost',
@@ -137,32 +142,51 @@ def home():
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
-    username = session['username']
-    cursor = conn.cursor()
-    photo = request.form['photo']
-    caption = request.form['caption']
-    followers = request.form.getlist('followers')
-    timeString = time.strftime('%Y-%m-%d %H:%M:%S')
-    query = 'INSERT INTO photo (postingDate, filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
-    if(len(followers) > 0):
-        if(followers[0] == "all"):
-            # all followers
-            cursor.execute(query, (timeString, photo, 1, caption, username))
-            conn.commit()
-        else:
-            cursor.execute(query, (timeString, photo, 0, caption, username))
-            conn.commit()
-            query = 'SELECT LAST_INSERT_ID()'
-            cursor.execute(query)
-            pID = cursor.fetchall()
-            pID = pID[0].get('LAST_INSERT_ID()')
-            print(pID)
-            query = 'INSERT INTO sharedwith (pID, groupName, groupCreator) VALUES(%s, %s, %s)'
-            for group in followers:
-                info = group.split(';')
-                cursor.execute(query, (pID, info[0], info[1]))
-                conn.commit()
-    cursor.close()
+    if request.method == 'POST':
+        username = session['username']
+        cursor = conn.cursor()
+        # photo = request.form['photo']
+        # check if the post request has the file part
+        if 'photo' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['photo']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            newFileName = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(newFileName)
+
+            photo = convertToBinaryData(newFileName)
+
+            caption = request.form['caption']
+            followers = request.form.getlist('followers')
+            timeString = time.strftime('%Y-%m-%d %H:%M:%S')
+            query = 'INSERT INTO photo (postingDate, filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
+            # WHAT HAPPENS IF NOTHING CHOSEN???
+            if(len(followers) > 0):
+                if(followers[0] == "all"):
+                    # all followers
+                    cursor.execute(query, (timeString, photo, 1, caption, username))
+                    conn.commit()
+                else:
+                    cursor.execute(query, (timeString, photo, 0, caption, username))
+                    conn.commit()
+                    query = 'SELECT LAST_INSERT_ID()'
+                    cursor.execute(query)
+                    pID = cursor.fetchall()
+                    pID = pID[0].get('LAST_INSERT_ID()')
+                    print(pID)
+                    query = 'INSERT INTO sharedwith (pID, groupName, groupCreator) VALUES(%s, %s, %s)'
+                    for group in followers:
+                        info = group.split(';')
+                        cursor.execute(query, (pID, info[0], info[1]))
+                        conn.commit()
+        cursor.close()
     return redirect(url_for('home'))
 
 @app.route('/react', methods=['GET', 'POST'])
@@ -354,6 +378,15 @@ def logout():
     session.pop('username')
     return redirect('/')
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def convertToBinaryData(filename):
+    # Convert digital data to binary format
+    with open(filename, 'rb') as file:
+        binaryData = file.read()
+    return binaryData
 
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000

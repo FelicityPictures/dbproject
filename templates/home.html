@@ -2,9 +2,9 @@
 
 {% block body %}
 <main>
-	<form action="/post" method="POST" class="postForm">
+	<form action="/post" method="POST" class="postForm"enctype=multipart/form-data>
 		<!-- <h1>{{username}}</h1> -->
-		<input type="text" name="photo" placeholder="photo" required/> </br>
+		<input type="file" name="photo"/>
 		<input type="text" name="caption" placeholder="Wutcha thinkin' about?" class="postForm--caption" required/> </br>
 		<label>
 			<input type="checkbox" name="followers" value="all">
