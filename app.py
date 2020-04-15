@@ -145,7 +145,6 @@ def post():
     if request.method == 'POST':
         username = session['username']
         cursor = conn.cursor()
-        # photo = request.form['photo']
         # check if the post request has the file part
         if 'photo' not in request.files:
             flash('No file part')
@@ -158,32 +157,34 @@ def post():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            # photo = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
             caption = request.form['caption']
             followers = request.form.getlist('followers')
             timeString = time.strftime('%Y-%m-%d %H:%M:%S')
             query = 'INSERT INTO photo (postingDate, filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
             # WHAT HAPPENS IF NOTHING CHOSEN???
-            if(len(followers) > 0):
-                if(followers[0] == "all"):
-                    # all followers
-                    cursor.execute(query, (timeString, filename, 1, caption, username))
+            if(len(followers) > 0 and followers[0] == "all"):
+                # all followers
+                cursor.execute(query, (timeString, filename, 1, caption, username))
+                conn.commit()
+            else:
+                cursor.execute(query, (timeString, filename, 0, caption, username))
+                conn.commit()
+            query = 'SELECT LAST_INSERT_ID()'
+            cursor.execute(query)
+            pID = cursor.fetchall()
+            pID = pID[0].get('LAST_INSERT_ID()')
+            if(len(followers) > 0 and followers[0] != "all"):
+                query = 'INSERT INTO sharedwith (pID, groupName, groupCreator) VALUES(%s, %s, %s)'
+                for group in followers:
+                    info = group.split(';')
+                    cursor.execute(query, (pID, info[0], info[1]))
                     conn.commit()
-                else:
-                    cursor.execute(query, (timeString, filename, 0, caption, username))
-                    conn.commit()
-                    query = 'SELECT LAST_INSERT_ID()'
-                    cursor.execute(query)
-                    pID = cursor.fetchall()
-                    pID = pID[0].get('LAST_INSERT_ID()')
-                    print(pID)
-                    query = 'INSERT INTO sharedwith (pID, groupName, groupCreator) VALUES(%s, %s, %s)'
-                    for group in followers:
-                        info = group.split(';')
-                        cursor.execute(query, (pID, info[0], info[1]))
-                        conn.commit()
+            filename = str(pID) + "_" + filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            query = 'UPDATE photo SET filePath = %s WHERE pID = %s'
+            cursor.execute(query, (filename, pID))
+            conn.commit()
         cursor.close()
     return redirect(url_for('home'))
 
@@ -308,14 +309,14 @@ def groups():
     cursor = conn.cursor()
     query = 'SELECT * FROM belongto WHERE username = %s'
     cursor.execute(query, (user))
-    data = cursor.fetchall()
+    userGroups = cursor.fetchall()
 
     query = 'SELECT * FROM person WHERE username != %s'
     cursor.execute(query, (user))
-    otherUsersData = cursor.fetchall()
+    listOfOtherUsers = cursor.fetchall()
 
     cursor.close()
-    return render_template('groups.html', username=user, availableUsers=otherUsersData, group_list=data)
+    return render_template('groups.html', username=user, availableUsers=listOfOtherUsers, group_list=userGroups)
 
 # Create new group
 @app.route('/newgroup', methods=['GET', 'POST'])

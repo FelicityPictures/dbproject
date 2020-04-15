@@ -3,28 +3,15 @@
 {% block body %}
 <main>
 
-{{username}}'s Pending Requests
-</br>
-
-<style type="text/css">
-	table, th, td{
-		border: 1px solid black;
-	}
-</style>
-<table>
-	<th>Following</th>
-	<th>Requested by</th>
-	<th>Status</th>
-
+<h1>Pending Follow Requests</h1>
+<ul class="requestList">
 {% for line in connections %}
-	<tr>
-		<td>{{line.followee}}</td>
-		<td>{{line.follower}}</td>
-		<td>
+	<li class="followRequest">
+		<h2 class="followRequest--username">{{line.follower}}</h2>
 			{% if line.followStatus == 1 %}
 				<form action="/rejectfollow" method="POST">
 					<input type="hidden" name="follower" value="{{line.follower}}">
-					<input type="submit" value="Retract Follow" />
+					<input type="submit" value="Retract follow" />
 				</form>
 	    {% else %}
 				<form action="/approvefollow" method="POST">
@@ -36,58 +23,38 @@
 					<input type="submit" value="Reject" />
 				</form>
 	    {% endif %}
-
-		</td>
-	</tr>
-{% endfor %}
-</table>
-</br>
-
-Other people
-<ul>
-{% for line in otherUsers %}
-	<li><form action="/follow" method="POST">
-		<p>{{line.username}}</p>
-		<input type="hidden" name="followee" value="{{line.username}}">
-		<input type="submit" value=Follow />
-	</form></li>
+	</li>
 {% endfor %}
 </ul>
 
-{{username}}'s Sent Requests
-<table>
-	<th>Following</th>
-	<th>Requested by</th>
-	<th>Status</th>
+<h1>People you may know</h1>
+<ul class="requestList">
+{% for line in otherUsers %}
+	<li class="followRequest">
+		<h2 class="followRequest--username">{{line.username}}</h2>
+		<form action="/follow" method="POST">
+			<input type="hidden" name="followee" value="{{line.username}}">
+			<input type="submit" value=Follow />
+		</form>
+	</li>
+{% endfor %}
+</ul>
 
+<h1>Following</h1>
+<ul class="requestList">
 {% for line in following %}
-	<tr>
-		<td>{{line.followee}}</td>
-		<td>{{line.follower}}</td>
-		<td>
+	<li class="followRequest">
+		<h2 class="followRequest--username">{{line.followee}}</h2>
+		<p class="followRequest--additionalInfo">
 			{% if line.followStatus == 1 %}
 				They have accepted
 	    {% else %}
 	      Pending on their acceptance
 	    {% endif %}
-
-		</td>
-	</tr>
+		</p>
+	</li>
 {% endfor %}
-</table>
-
-
-
-<!-- {% for line in user_list %}
-<input type="radio" name="poster" value={{line.username}}>{{line.username}}</input>
-	</br>
-{% endfor %}
-
-<input type="submit" value="View Posts"> -->
-
-
-
+</ul>
 
 </main>
-
 {% endblock %}

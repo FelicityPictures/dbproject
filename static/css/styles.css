@@ -148,13 +148,20 @@ input[type=submit]{
 
 .post--name{
   font-size: 1em;
-  margin: 10px 0px;
+  margin: 5px 0px;
 }
 
 .post--image{
   width: 100%;
-  border: 1px solid blue;
-  margin: 5px 0px;
+  margin: 10px 0px 20px 0px;
+}
+
+ .post--caption, .post--timestamp{
+   margin-bottom: 10px;
+ }
+
+.post--timestamp{
+  font-size: 0.75em;
 }
 
 .comments{
@@ -172,7 +179,6 @@ input[type=submit]{
 details{
   /* width: 100%; */
   cursor: pointer;
-  border: 1px solid green;
   margin-bottom: 20px;
 }
 
@@ -192,4 +198,25 @@ details > * {
 
 .postForm--caption{
   /* height: 50px; */
+}
+
+.requestList{
+  padding: 0px;
+}
+
+.followRequest{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid #ffb3ff;
+  margin-bottom: 25px;
+}
+.followRequest--username, .followRequest--additionalInfo{
+  margin: 0px;
 }

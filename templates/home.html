@@ -5,25 +5,21 @@
 	<form action="/post" method="POST" class="postForm"enctype=multipart/form-data>
 		<!-- <h1>{{username}}</h1> -->
 		<input type="file" name="photo"/>
-		<input type="text" name="caption" placeholder="Wutcha thinkin' about?" class="postForm--caption" required/> </br>
+		<input type="text" name="caption" placeholder="Write something..." class="postForm--caption" required/>
 		<label>
 			<input type="checkbox" name="followers" value="all">
 			Share with all followers
-		</label></br>
+		</label>
 		<div id="postForm--groups">
 		{% for line in groups %}
 			<label>
 				<input type="checkbox" name="followers" value="{{line.groupName}};{{line.groupCreator}}">
 				{{line.groupName}}, {{line.groupCreator}}
-			</label></br>
+			</label>
 		{% endfor %}
 		</div>
 		<input type="submit" value=Post />
 	</form>
-
-
-	<a href="/connections">Connections</a> </br>
-	<a href="/groups">Your Groups</a>
 
 	<h1>Newsfeed</h1>
 	{% for line in posts %}
@@ -31,24 +27,23 @@
 			<h2 class="post--name">{{line.firstName}} {{line.lastName}}</h2>
 			<!-- <p id="{{line.pID}}" class="post--image"><b>{{line.pID}}</b> {{line.filePath}}</p> -->
 			<img id="{{line.pID}}" class="post--image" src="{{ url_for('uploads', filename=line.filePath) }}">
-			<summary>
+			<figcaption class="post--caption">
 				<b>{{line.firstName}} {{line.lastName}}</b> {{line.caption}}
-			</summary>
-			<p>
+			</figcaption>
+			<time class="post--timestamp">
 				{{line.postingDate}}
-			</p>
+			</time>
 			<!-- <td>{{line.pID}}</td> -->
 
 			<details>
-				{% for react in reacts %}
-				{% if react.pID == line.pID %}
+				<summary>Comments</summary>
+				{% for react in reacts if react.pID == line.pID %}
 					<p>
 						<b>{{react.username}}</b> reacted with <i>{{react.emoji}}</i> emoji
 						{% if react.comment %}
 						, saying "{{react.comment}}" at {{react.reactionTime}}
 						{% endif %}
 					</p>
-		    {% endif %}
 				{% endfor %}
 			</details>
 
@@ -81,13 +76,10 @@
 					</label>
 				</div>
 				<input type="text" name="comment" placeholder="comment"/>
-				<input type="submit" value=React />
+				<input type="submit" value=Send />
 			</form>
 		</section>
 	{% endfor %}
-	</br>
-	</br>
-	</br>
 
 </main>
 
