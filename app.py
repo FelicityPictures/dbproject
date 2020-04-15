@@ -1,7 +1,7 @@
 import time
 import os
 import pymysql.cursors
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 
 # upload folder
@@ -158,10 +158,8 @@ def post():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            newFileName = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(newFileName)
-
-            photo = convertToBinaryData(newFileName)
+            # photo = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
             caption = request.form['caption']
             followers = request.form.getlist('followers')
@@ -171,10 +169,10 @@ def post():
             if(len(followers) > 0):
                 if(followers[0] == "all"):
                     # all followers
-                    cursor.execute(query, (timeString, photo, 1, caption, username))
+                    cursor.execute(query, (timeString, filename, 1, caption, username))
                     conn.commit()
                 else:
-                    cursor.execute(query, (timeString, photo, 0, caption, username))
+                    cursor.execute(query, (timeString, filename, 0, caption, username))
                     conn.commit()
                     query = 'SELECT LAST_INSERT_ID()'
                     cursor.execute(query)
@@ -378,15 +376,13 @@ def logout():
     session.pop('username')
     return redirect('/')
 
+@app.route('/uploads/<path:filename>')
+def uploads(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def convertToBinaryData(filename):
-    # Convert digital data to binary format
-    with open(filename, 'rb') as file:
-        binaryData = file.read()
-    return binaryData
 
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000

@@ -11,7 +11,7 @@ CREATE TABLE Person (
 CREATE TABLE Photo (
   pID INT AUTO_INCREMENT,
   postingDate DATETIME,
-  filePath BLOB,
+  filePath VARCHAR(255),
   allFollowers INT,
   caption VARCHAR(1000),
   poster VARCHAR(32),

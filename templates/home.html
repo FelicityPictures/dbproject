@@ -29,7 +29,8 @@
 	{% for line in posts %}
 		<section class="post">
 			<h2 class="post--name">{{line.firstName}} {{line.lastName}}</h2>
-			<p class="post--image"><b>{{line.pID}}</b> {{line.filePath}}</p>
+			<!-- <p id="{{line.pID}}" class="post--image"><b>{{line.pID}}</b> {{line.filePath}}</p> -->
+			<img id="{{line.pID}}" class="post--image" src="{{ url_for('uploads', filename=line.filePath) }}">
 			<summary>
 				<b>{{line.firstName}} {{line.lastName}}</b> {{line.caption}}
 			</summary>
