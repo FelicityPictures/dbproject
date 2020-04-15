@@ -1,14 +1,38 @@
-<!DOCTYPE html>
-<html>
+<html lang='en-US'>
+  <head>
+    <meta charset='UTF-8'>
+    <meta name='viewport'
+          content='width=device-width, initial-scale=1.0'>
+    <title>Finstagram</title>
 
-<head>
+    <!-- Favicon -->
+    <!-- <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}"> -->
 
-</head>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Ubuntu:wght@400;500&display=swap" rel="stylesheet">
 
-<body>
-	<a href="/login">Login</a>
-	</br>
-	<a href="/register">Register</a>
-</body>
+  	<!-- CSS -->
+  	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+
+    {% block head %}
+    {% endblock %}
+
+  </head>
+
+  <body class="indexBody">
+		<form action="/loginAuth" method="POST" class="loginForm">
+			<h1>Welcome to Finstagram</h1>
+			<input type="text" name="username" placeholder="username" required/>
+			<input type="password" name="password" placeholder="password" required/>
+			<div class="loginForm--submitLine">
+				<input type="submit" value=Login />
+				{% if loginError %}
+					<p class="error">{{loginError}}</p>
+				{% endif %}
+			</div>
+			<p class="smallRedirectText">Don't have an account? <a href="/register">Register</a></p>
+		</form>
+
+	</body>
 
 </html>

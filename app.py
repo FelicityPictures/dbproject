@@ -20,12 +20,6 @@ conn = pymysql.connect(host='localhost',
 def hello():
     return render_template('index.html')
 
-# Define route for login
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
-# Define route for register
 @app.route('/register')
 def register():
     return render_template('register.html')
@@ -54,7 +48,7 @@ def loginAuth():
     else:
         # returns an error message to the html page
         error = 'Invalid login or username'
-        return render_template('login.html', error=error)
+        return render_template('index.html', loginError=error)
 
 # Authenticates the register
 @app.route('/registerAuth', methods=['GET', 'POST'])
@@ -77,7 +71,7 @@ def registerAuth():
     if(data):
         # If the previous query returns data, then user exists
         error = "This user already exists"
-        return render_template('register.html', error=error)
+        return render_template('register.html', registerError=error)
     else:
         ins = 'INSERT INTO person (username, password, firstName, lastName, email) VALUES (%s, %s, %s, %s, %s)'
         # cursor.execute(ins, (firstName, lastName, email, username, password))

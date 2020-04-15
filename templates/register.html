@@ -1,22 +1,42 @@
-<html>
-<head>
-</head>
-<body>
-<form action="/registerAuth" method="POST">
-	<input type="text" name="firstName" placeholder="first name" required/> </br>
-	<input type="text" name="lastName" placeholder="last name" required/> </br>
-	<input type="email" name="email" placeholder="email" required/> </br>
-	<input type="text" name="username" placeholder="username" required/> </br>
-	<input type="password" name="password" placeholder="password" required/></br>
-	<input type="submit" value=Register />
-	{% if error %}
-		<p class="error"><strong>Error:</strong> {{error}}</p>
-	{% endif %}
-</form>
+<html lang='en-US'>
+  <head>
+    <meta charset='UTF-8'>
+    <meta name='viewport'
+          content='width=device-width, initial-scale=1.0'>
+    <title>Finstagram</title>
 
-<a href="/">Go back</a>
+    <!-- Favicon -->
+    <!-- <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}"> -->
 
-</body>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Ubuntu:wght@400;500&display=swap" rel="stylesheet">
 
+  	<!-- CSS -->
+  	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+
+    {% block head %}
+    {% endblock %}
+
+  </head>
+
+  <body class="indexBody">
+
+		<form action="/registerAuth" method="POST" class="loginForm">
+			<h1>Register for an account</h1>
+			<input type="text" name="firstName" placeholder="first name" required/>
+			<input type="text" name="lastName" placeholder="last name" required/>
+			<input type="email" name="email" placeholder="email" required/>
+			<input type="text" name="username" placeholder="username" required/>
+			<input type="password" name="password" placeholder="password" required/>
+			<div class="loginForm--submitLine">
+				<input type="submit" value=Register />
+				{% if registerError %}
+					<p class="error">{{registerError}}</p>
+				{% endif %}
+			</div>
+      <p class="smallRedirectText">Already have an account? <a href="/">Log In</a></p>
+		</form>
+
+	</body>
 
 </html>

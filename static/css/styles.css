@@ -6,6 +6,50 @@ body{
   padding: 0px;
   background-color: #F0F2F5;
 }
+.indexBody{
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.loginForm{
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  background-color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  border: 1px solid #757575;
+  margin: 10px;
+  border-radius: 10px;
+}
+.loginForm > input{
+  width: 100%;
+  margin: 5px 0px;
+}
+.loginForm--submitLine{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+.loginForm--submitLine input[type=submit]{
+  width: 30%;
+}
+.error{
+  color: #C50000;
+  font-size: 0.75em;
+  margin: 0px;
+}
+
+.smallRedirectText{
+  font-size: 0.75em;
+  margin: 0px;
+  margin-top: 20px;
+}
 
 header{
   position: fixed;
@@ -70,10 +114,22 @@ h2, b{
   font-weight: 500;
 }
 
-input[type=text]{
+input[type=text], input[type=email], input[type=password]{
   border-radius: 3px;
   border: 1px solid #757575;
   padding: 5px 10px;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1em;
+}
+input[type=submit]{
+  color: white;
+  background-color: #0085C4;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 500;
+  font-size: 1em;
 }
 
 .post{
