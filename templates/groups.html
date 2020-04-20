@@ -18,7 +18,7 @@
 
 		<input type="submit" value=Create />
 		{% if error %}
-			<p class="error"><strong>Error:</strong> {{error}}</p>
+			<p class="error">{{error}}</p>
 		{% endif %}
 	</form>
 
@@ -26,6 +26,12 @@
 	{% for line in group_list %}
 		<section class="post">
 			<h2>{{line.groupName}}</h2>
+			<details>
+				<summary>Group description</summary>
+					<p>
+						{{line.description}}
+					</p>
+			</details>
 			<ul>
 				{% for member in memberList if member.groupName == line.groupName and member.groupCreator == line.groupCreator %}
 					<li>

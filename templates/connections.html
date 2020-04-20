@@ -10,6 +10,7 @@
 		<h2 class="followRequest--username">{{line.follower}}</h2>
 			{% if line.followStatus == 1 %}
 				<form action="/rejectfollow" method="POST">
+					<input type="hidden" name="followee" value="{{username}}">
 					<input type="hidden" name="follower" value="{{line.follower}}">
 					<input type="submit" value="Retract follow" />
 				</form>
@@ -19,6 +20,7 @@
 					<input type="submit" value="Approve" />
 				</form>
 				<form action="/rejectfollow" method="POST">
+					<input type="hidden" name="followee" value="{{username}}">
 					<input type="hidden" name="follower" value="{{line.follower}}">
 					<input type="submit" value="Reject" />
 				</form>
@@ -45,13 +47,22 @@
 {% for line in following %}
 	<li class="followRequest">
 		<h2 class="followRequest--username">{{line.followee}}</h2>
-		<p class="followRequest--additionalInfo">
 			{% if line.followStatus == 1 %}
-				They have accepted
+				<form action="/rejectfollow" method="POST">
+					<input type="hidden" name="followee" value="{{line.followee}}">
+					<input type="hidden" name="follower" value="{{username}}">
+					<input type="submit" value="Unfollow" />
+				</form>
 	    {% else %}
-	      Pending on their acceptance
+				<!-- <p class="followRequest--additionalInfo">
+		      Pending on their acceptance
+				</p> -->
+				<form action="/rejectfollow" method="POST">
+					<input type="hidden" name="followee" value="{{line.followee}}">
+					<input type="hidden" name="follower" value="{{username}}">
+					<input type="submit" value="Cancel request" />
+				</form>
 	    {% endif %}
-		</p>
 	</li>
 {% endfor %}
 </ul>

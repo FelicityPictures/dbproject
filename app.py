@@ -93,13 +93,8 @@ def registerAuth():
 def home():
     user = session['username']
     cursor = conn.cursor()
-    # query = """
-    #         SELECT * FROM photo
-    #         WHERE poster = %s
-    #         ORDER BY postingDate DESC
-    #         """
     query = """
-            SELECT DISTINCT pID, postingDate, filePath, caption, firstName, lastName
+            SELECT DISTINCT pID, postingDate, filePath, caption, firstName, lastName, username
             FROM photo JOIN person ON(photo.poster=person.username)
             WHERE pID in
                 (SELECT pID
@@ -248,7 +243,6 @@ def connections():
 @app.route('/follow', methods=['GET', 'POST'])
 def follow():
     user = session['username']
-    #grabs information from the forms
     followee = request.form['followee']
 
     cursor = conn.cursor();
@@ -260,7 +254,6 @@ def follow():
         ins = 'INSERT INTO follow (follower, followee, followStatus) VALUES(%s, %s, %s)'
         cursor.execute(ins, (user, followee, 0))
         conn.commit()
-
     cursor.close()
     return redirect(url_for('connections'))
 
@@ -282,12 +275,13 @@ def approvefollow():
 def rejectfollow():
     user = session['username']
     #grabs information from the forms
+    followee = request.form['followee']
     follower = request.form['follower']
 
     cursor = conn.cursor();
 
     query = 'DELETE FROM follow WHERE followee = %s AND follower = %s'
-    cursor.execute(query, (user, follower))
+    cursor.execute(query, (followee, follower))
     conn.commit()
     cursor.close()
     return redirect(url_for('connections'))
@@ -305,13 +299,9 @@ def show_posts():
 
 @app.route('/groups')
 def groups():
-    # check that user is logged in
-    #username = session['username']
-    # should throw exception if username not found
-
     user = session['username']
     cursor = conn.cursor()
-    query = 'SELECT * FROM belongto WHERE username = %s'
+    query = 'SELECT groupName, description, groupCreator FROM belongto NATURAL JOIN friendgroup WHERE username = %s'
     cursor.execute(query, (user))
     userGroups = cursor.fetchall()
 
@@ -378,7 +368,6 @@ def newgroup():
         data = cursor.fetchall()
         cursor.close()
         return redirect(url_for('groups'))
-
 
 @app.route('/logout')
 def logout():

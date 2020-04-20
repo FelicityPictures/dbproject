@@ -29,7 +29,7 @@
 			<!-- <p id="{{line.pID}}" class="post--image"><b>{{line.pID}}</b> {{line.filePath}}</p> -->
 			<img id="{{line.pID}}" class="post--image" src="{{ url_for('uploads', filename=line.filePath) }}">
 			<figcaption class="post--caption">
-				<b>{{line.firstName}} {{line.lastName}}</b> {{line.caption}}
+				<b>{{line.username}}</b> {{line.caption}}
 			</figcaption>
 			<time class="post--timestamp">
 				{{line.postingDate}}
@@ -40,7 +40,7 @@
 				<summary>Comments</summary>
 				{% for react in reacts if react.pID == line.pID %}
 					<p>
-						<b>{{react.username}}</b> reacted with <i>{{react.emoji}}</i> emoji
+						<b>{{react.username}}</b> reacted {{react.emoji}}
 						{% if react.comment %}
 						, saying "{{react.comment}}" at {{react.reactionTime}}
 						{% endif %}
@@ -52,28 +52,28 @@
 				<input type="hidden" name="pID" value="{{line.pID}}">
 				<div class="reactions">
 				  <label class="reactions--label">
-						<input type="radio" name="react" value="like">
-						Like
+						<input type="radio" name="react" value="👍">
+						👍
 					</label>
 				  <label class="reactions--label">
-						<input type="radio" name="react" value="love">
-						Love
+						<input type="radio" name="react" value="❤️">
+						❤️
 					</label>
 				  <label class="reactions--label">
-						<input type="radio" name="react" value="laugh">
-						Laugh
+						<input type="radio" name="react" value="😂">
+						😂
 					</label>
 				  <label class="reactions--label">
-						<input type="radio" name="react" value="wow">
-						Wow
+						<input type="radio" name="react" value="😯">
+						😯
 					</label>
 				  <label class="reactions--label">
-						<input type="radio" name="react" value="sad">
-						Sad
+						<input type="radio" name="react" value="😢">
+						😢
 					</label>
 				  <label class="reactions--label">
-						<input type="radio" name="react" value="angry">
-						Angry
+						<input type="radio" name="react" value="😠">
+						😠
 					</label>
 				</div>
 				<input type="text" name="comment" placeholder="comment"/>
