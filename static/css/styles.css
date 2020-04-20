@@ -1,3 +1,7 @@
+.displayNone{
+  display: none !important;
+}
+
 body{
   display: flex;
   justify-content: center;
@@ -17,6 +21,7 @@ body{
   display: flex;
   flex-direction: column;
   width: 30%;
+  max-width: 375px;
   background-color: white;
   padding: 20px;
   box-sizing: border-box;
@@ -26,6 +31,7 @@ body{
 }
 .loginForm > input{
   width: 100%;
+  box-sizing: border-box;
   margin: 5px 0px;
 }
 .loginForm--submitLine{
@@ -103,7 +109,9 @@ header{
 main{
   margin-top: 50px;
   width: 50%;
+  max-width: 600px;
   z-index: 1;
+  box-sizing: border-box;
 }
 
 h1{
@@ -195,9 +203,26 @@ details > * {
   flex-direction: column;
   background-color: white;
 }
+.postForm > input{
+  width: 100%;
+  box-sizing: border-box;
+  margin: 5px 0px;
+}
+.postForm > input[type=submit]{
+  width: 50%;
+  box-sizing: border-box;
+  margin-top: 20px;
+}
 
-.postForm--caption{
-  /* height: 50px; */
+#postForm--groups{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin: 15px 0px;
+}
+#postForm--groups > p{
+  margin: 0px;
 }
 
 .requestList{

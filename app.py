@@ -1,12 +1,14 @@
 import time
 import os
 import pymysql.cursors
+import hashlib
 from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 
 # upload folder
 UPLOAD_FOLDER = ".\\uploads"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+SALT = 'Felicity_Ng_CS-UY_3083'
 # Initialize the app from Flask
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -34,13 +36,14 @@ def register():
 def loginAuth():
     # grabs information from the forms
     username = request.form['username']
-    password = request.form['password']
+    password = request.form['password']+SALT
+    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
     # cursor used to send queries
     cursor = conn.cursor()
     # executes query
     query = 'SELECT * FROM person WHERE username = %s AND password = %s'
-    cursor.execute(query, (username, password))
+    cursor.execute(query, (username, hashed_password))
     # stores the results in a variable
     data = cursor.fetchone()
     # use fetchall() if you are expecting more than 1 data row
@@ -63,7 +66,8 @@ def registerAuth():
     lastName = request.form['lastName']
     email = request.form['email']
     username = request.form['username']
-    password = request.form['password']
+    password = request.form['password']+SALT
+    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
     # cursor used to send queries
     cursor = conn.cursor()
@@ -80,7 +84,7 @@ def registerAuth():
     else:
         ins = 'INSERT INTO person (username, password, firstName, lastName, email) VALUES (%s, %s, %s, %s, %s)'
         # cursor.execute(ins, (firstName, lastName, email, username, password))
-        cursor.execute(ins, (username, password, firstName, lastName, email))
+        cursor.execute(ins, (username, hashed_password, firstName, lastName, email))
         conn.commit()
         cursor.close()
         return render_template('index.html')
@@ -311,12 +315,16 @@ def groups():
     cursor.execute(query, (user))
     userGroups = cursor.fetchall()
 
+    query = 'SELECT * FROM belongto WHERE (groupName, groupCreator) IN (SELECT groupName, groupCreator FROM belongto WHERE username = %s)'
+    cursor.execute(query, (user))
+    membersOfGroup = cursor.fetchall()
+
     query = 'SELECT * FROM person WHERE username != %s'
     cursor.execute(query, (user))
     listOfOtherUsers = cursor.fetchall()
 
     cursor.close()
-    return render_template('groups.html', username=user, availableUsers=listOfOtherUsers, group_list=userGroups)
+    return render_template('groups.html', username=user, availableUsers=listOfOtherUsers, group_list=userGroups, memberList=membersOfGroup)
 
 # Create new group
 @app.route('/newgroup', methods=['GET', 'POST'])
@@ -369,7 +377,7 @@ def newgroup():
         cursor.execute(query, (user))
         data = cursor.fetchall()
         cursor.close()
-        return redirect(url_for('connections'))
+        return redirect(url_for('groups'))
 
 
 @app.route('/logout')

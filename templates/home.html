@@ -2,21 +2,22 @@
 
 {% block body %}
 <main>
-	<form action="/post" method="POST" class="postForm"enctype=multipart/form-data>
+	<form action="/post" method="POST" class="postForm" enctype=multipart/form-data>
 		<!-- <h1>{{username}}</h1> -->
 		<input type="file" name="photo"/>
 		<input type="text" name="caption" placeholder="Write something..." class="postForm--caption" required/>
 		<label>
-			<input type="checkbox" name="followers" value="all">
+			<input type="checkbox" name="followers" value="all" onclick="groupDisplay(this)">
 			Share with all followers
 		</label>
 		<div id="postForm--groups">
-		{% for line in groups %}
-			<label>
-				<input type="checkbox" name="followers" value="{{line.groupName}};{{line.groupCreator}}">
-				{{line.groupName}}, {{line.groupCreator}}
-			</label>
-		{% endfor %}
+			<p>Share with groups:</p>
+			{% for line in groups %}
+				<label>
+					<input type="checkbox" name="followers" value="{{line.groupName}};{{line.groupCreator}}">
+					{{line.groupName}}, {{line.groupCreator}}
+				</label>
+			{% endfor %}
 		</div>
 		<input type="submit" value=Post />
 	</form>
@@ -82,5 +83,10 @@
 	{% endfor %}
 
 </main>
+{% endblock %}
 
+
+{% block footer %}
+	<!-- javascript -->
+	<script type="text/javascript" src="{{ url_for('static', filename='js/groups.js') }}"></script>
 {% endblock %}
