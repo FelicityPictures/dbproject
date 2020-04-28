@@ -25,6 +25,19 @@ conn = pymysql.connect(host='localhost',
 # Define a route to hello function
 @app.route('/')
 def hello():
+    # cursor = conn.cursor()
+    # query = 'SELECT * FROM person'
+    # cursor.execute(query)
+    # data = cursor.fetchall()
+    # for row in data:
+    #     password = row.get("password")
+    #     password = password + SALT
+    #     hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    #     username = row.get("username")
+    #     query = 'UPDATE person SET password = %s WHERE username = %s'
+    #     cursor.execute(query, (hashed_password, username))
+    #     conn.commit()
+    # cursor.close()
     return render_template('index.html')
 
 @app.route('/register')
@@ -196,7 +209,7 @@ def react():
     comment = request.form['comment']
 
     query = 'SELECT * FROM reactto WHERE pID = %s AND username = %s'
-    cursor.execute(query, (username, photo))
+    cursor.execute(query, (photo, username))
     data = cursor.fetchone()
     if(not data):
         query = 'INSERT INTO reactto (username, pID, reactionTime, comment, emoji) VALUES(%s, %s, %s, %s, %s)'
@@ -286,17 +299,6 @@ def rejectfollow():
     cursor.close()
     return redirect(url_for('connections'))
 
-@app.route('/show_posts', methods=["GET", "POST"])
-def show_posts():
-    poster = request.args['poster']
-    cursor = conn.cursor()
-    query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-    cursor.execute(query, poster)
-    data = cursor.fetchall()
-    cursor.close()
-    return render_template('show_posts.html', poster_name=poster, posts=data)
-
-
 @app.route('/groups')
 def groups():
     user = session['username']
@@ -362,11 +364,6 @@ def newgroup():
             ins = 'INSERT INTO belongto (username, groupName, groupCreator) VALUES(%s, %s, %s)'
             cursor.execute(ins, (member, groupName, user))
             conn.commit()
-
-        query = 'SELECT * FROM belongto WHERE username = %s'
-        cursor.execute(query, (user))
-        data = cursor.fetchall()
-        cursor.close()
         return redirect(url_for('groups'))
 
 @app.route('/logout')

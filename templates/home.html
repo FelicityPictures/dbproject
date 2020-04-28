@@ -42,8 +42,9 @@
 					<p>
 						<b>{{react.username}}</b> reacted {{react.emoji}}
 						{% if react.comment %}
-						, saying "{{react.comment}}" at {{react.reactionTime}}
+						, saying "{{react.comment}}"
 						{% endif %}
+						at {{react.reactionTime}}
 					</p>
 				{% endfor %}
 			</details>
