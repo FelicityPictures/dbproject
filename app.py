@@ -22,8 +22,6 @@ conn = pymysql.connect(host='localhost',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
-# Define a route to hello function
-@app.route('/')
 def hello():
     # cursor = conn.cursor()
     # query = 'SELECT * FROM person'
@@ -40,70 +38,11 @@ def hello():
     # cursor.close()
     return render_template('index.html')
 
-@app.route('/register')
-def register():
-    return render_template('register.html')
-
-# Authenticates the login
-@app.route('/loginAuth', methods=['GET', 'POST'])
-def loginAuth():
-    # grabs information from the forms
-    username = request.form['username']
-    password = request.form['password']+SALT
-    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
-
-    # cursor used to send queries
-    cursor = conn.cursor()
-    # executes query
-    query = 'SELECT * FROM person WHERE username = %s AND password = %s'
-    cursor.execute(query, (username, hashed_password))
-    # stores the results in a variable
-    data = cursor.fetchone()
-    # use fetchall() if you are expecting more than 1 data row
-    cursor.close()
-    if(data):
-        # creates a session for the the user
-        # session is tied to flask request context
-        session['username'] = username
-        return redirect(url_for('home'))
-    else:
-        # returns an error message to the html page
-        error = 'Invalid login or username'
-        return render_template('index.html', loginError=error)
-
-# Authenticates the register
-@app.route('/registerAuth', methods=['GET', 'POST'])
-def registerAuth():
-    # grabs information from the forms
-    firstName = request.form['firstName']
-    lastName = request.form['lastName']
-    email = request.form['email']
-    username = request.form['username']
-    password = request.form['password']+SALT
-    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
-
-    # cursor used to send queries
-    cursor = conn.cursor()
-    # executes query
-    query = 'SELECT * FROM person WHERE username = %s'
-    cursor.execute(query, (username))
-    # stores the results in a variable
-    data = cursor.fetchone()
-    # use fetchall() if you are expecting more than 1 data row
-    if(data):
-        # If the previous query returns data, then user exists
-        error = "This user already exists"
-        return render_template('register.html', registerError=error)
-    else:
-        ins = 'INSERT INTO person (username, password, firstName, lastName, email) VALUES (%s, %s, %s, %s, %s)'
-        # cursor.execute(ins, (firstName, lastName, email, username, password))
-        cursor.execute(ins, (username, hashed_password, firstName, lastName, email))
-        conn.commit()
-        cursor.close()
-        return render_template('index.html')
-
+@app.route('/')
 @app.route('/home')
 def home():
+    if not session.get('logged_in'):
+        return render_template('index.html')
     user = session['username']
     cursor = conn.cursor()
     query = """
@@ -151,6 +90,69 @@ def home():
 
     cursor.close()
     return render_template('home.html', username=user, posts=posts, groups=groups, reacts=reacts)
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
+# Authenticates the login
+@app.route('/loginAuth', methods=['GET', 'POST'])
+def loginAuth():
+    # grabs information from the forms
+    username = request.form['username']
+    password = request.form['password']+SALT
+    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+    # executes query
+    query = 'SELECT * FROM person WHERE username = %s AND password = %s'
+    cursor.execute(query, (username, hashed_password))
+    # stores the results in a variable
+    data = cursor.fetchone()
+    # use fetchall() if you are expecting more than 1 data row
+    cursor.close()
+    if(data):
+        # creates a session for the the user
+        # session is tied to flask request context
+        session['logged_in'] = True
+        session['username'] = username
+        return redirect(url_for('home'))
+    else:
+        # returns an error message to the html page
+        error = 'Invalid login or username'
+        return render_template('index.html', loginError=error)
+
+# Authenticates the register
+@app.route('/registerAuth', methods=['GET', 'POST'])
+def registerAuth():
+    # grabs information from the forms
+    firstName = request.form['firstName']
+    lastName = request.form['lastName']
+    email = request.form['email']
+    username = request.form['username']
+    password = request.form['password']+SALT
+    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+    # executes query
+    query = 'SELECT * FROM person WHERE username = %s'
+    cursor.execute(query, (username))
+    # stores the results in a variable
+    data = cursor.fetchone()
+    # use fetchall() if you are expecting more than 1 data row
+    if(data):
+        # If the previous query returns data, then user exists
+        error = "This user already exists"
+        return render_template('register.html', registerError=error)
+    else:
+        ins = 'INSERT INTO person (username, password, firstName, lastName, email) VALUES (%s, %s, %s, %s, %s)'
+        # cursor.execute(ins, (firstName, lastName, email, username, password))
+        cursor.execute(ins, (username, hashed_password, firstName, lastName, email))
+        conn.commit()
+        cursor.close()
+        return render_template('index.html')
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
@@ -225,9 +227,8 @@ def react():
 
 @app.route('/connections')
 def connections():
-    # check that user is logged in
-    # username = session['username']
-    # should throw exception if username not found
+    if not session.get('logged_in'):
+        return render_template('index.html')
     user = session['username']
 
     cursor = conn.cursor();
@@ -301,6 +302,8 @@ def rejectfollow():
 
 @app.route('/groups')
 def groups():
+    if not session.get('logged_in'):
+        return render_template('index.html')
     user = session['username']
     cursor = conn.cursor()
     query = 'SELECT groupName, description, groupCreator FROM belongto NATURAL JOIN friendgroup WHERE username = %s'
@@ -368,6 +371,7 @@ def newgroup():
 
 @app.route('/logout')
 def logout():
+    session['logged_in'] = False
     session.pop('username')
     return redirect('/')
 
