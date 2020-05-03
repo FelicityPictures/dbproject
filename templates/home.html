@@ -1,88 +1,93 @@
-<html>
-<head>
-</head>
-<body>
-<form action="/post" method="POST">
-	<h1>Welcome {{username}}</h1>
-	<input type="text" name="photo" placeholder="photo" required/> </br>
-	<input type="text" name="caption" placeholder="caption" required/> </br>
-	<input type="checkbox" name="followers" value="all"><label for="all">Share with all followers</label></br>
-	<div id="groups">
-	{% for line in groups %}
-		<input type="checkbox" name="followers" value="{{line.groupName}};{{line.groupCreator}}"><label for="{{line.groupName}},{line.groupCreator}}">{{line.groupName}}, {{line.groupCreator}}</label></br>
-	{% endfor %}
-	</div>
-	<input type="submit" value=Post />
-</form>
+{% extends "master.html" %}
 
-
-<a href="/connections">Connections</a> </br>
-<a href="/groups">Your Groups</a>
-</br>
-</br>
-
-<style type="text/css">
-	table, th, td{
-		border: 1px solid black;
-	}
-</style>
-
-Here are your posts:
-
-<table>
-	<th>pID</th>
-	<th>Posting Date</th>
-	<th>File Path</th>
-	<th>Caption</th>
-	<th>Poster</th>
-	<th>Other people's reactions</th>
-	<th>React</th>
-
-{% for line in posts %}
-	<tr>
-		<td>{{line.pID}}</td>
-		<td>{{line.postingDate}}</td>
-		<td>{{line.filePath}}</td>
-		<td>{{line.caption}}</td>
-		<td>{{line.firstName}} {{line.lastName}}</td>
-		<td>
-			{% for react in reacts %}
-			{% if react.pID == line.pID %}
-				<p>
-					<b>{{react.username}}</b> reacted with {{react.emoji}} emoji, saying "{{react.comment}}" at {{react.reactionTime}}
-				</p>
-	    {% endif %}
+{% block body %}
+<main>
+	<form action="/post" method="POST" class="postForm" enctype=multipart/form-data>
+		<!-- <h1>{{username}}</h1> -->
+		<input type="file" name="photo"/>
+		<input type="text" name="caption" placeholder="Write something..." class="postForm--caption" required/>
+		<label>
+			<input type="checkbox" name="followers" value="all" onclick="groupDisplay(this)">
+			Share with all followers
+		</label>
+		<div id="postForm--groups">
+			<p>Share with groups:</p>
+			{% for line in groups %}
+				<label>
+					<input type="checkbox" name="followers" value="{{line.groupName}};{{line.groupCreator}}">
+					{{line.groupName}}, {{line.groupCreator}}
+				</label>
 			{% endfor %}
-		</td>
-		<td>
-			<form action="/react" method="POST">
+		</div>
+		<input type="submit" value=Post />
+	</form>
+
+	<h1>Newsfeed</h1>
+	{% for line in posts %}
+		<section class="post">
+			<h2 class="post--name">{{line.firstName}} {{line.lastName}}</h2>
+			<!-- <p id="{{line.pID}}" class="post--image"><b>{{line.pID}}</b> {{line.filePath}}</p> -->
+			<img id="{{line.pID}}" class="post--image" src="{{ url_for('uploads', filename=line.filePath) }}">
+			<figcaption class="post--caption">
+				<b>{{line.username}}</b> {{line.caption}}
+			</figcaption>
+			<time class="post--timestamp">
+				{{line.postingDate}}
+			</time>
+			<!-- <td>{{line.pID}}</td> -->
+
+			<details>
+				<summary>Comments</summary>
+				{% for react in reacts if react.pID == line.pID %}
+					<p>
+						<b>{{react.username}}</b> reacted {{react.emoji}}
+						{% if react.comment %}
+						, saying "{{react.comment}}"
+						{% endif %}
+						at {{react.reactionTime}}
+					</p>
+				{% endfor %}
+			</details>
+
+			<form action="/react" method="POST" class="comments">
 				<input type="hidden" name="pID" value="{{line.pID}}">
-
-				<input type="radio" name="react" value="like">
-			  <label for="like">Like</label></br>
-			  <input type="radio" name="react" value="love">
-			  <label for="love">Love</label></br>
-			  <input type="radio" name="react" value="laugh">
-			  <label for="laugh">Laugh</label></br>
-			  <input type="radio" name="react" value="wow">
-			  <label for="wow">Wow</label></br>
-			  <input type="radio" name="react" value="sad">
-			  <label for="sad">Sad</label></br>
-			  <input type="radio" name="react" value="angry">
-			  <label for="angry">Angry</label></br>
-				<input type="text" name="comment" placeholder="comment"/> </br>
-				<input type="submit" value=React />
+				<div class="reactions">
+				  <label class="reactions--label">
+						<input type="radio" name="react" value="👍">
+						👍
+					</label>
+				  <label class="reactions--label">
+						<input type="radio" name="react" value="❤️">
+						❤️
+					</label>
+				  <label class="reactions--label">
+						<input type="radio" name="react" value="😂">
+						😂
+					</label>
+				  <label class="reactions--label">
+						<input type="radio" name="react" value="😯">
+						😯
+					</label>
+				  <label class="reactions--label">
+						<input type="radio" name="react" value="😢">
+						😢
+					</label>
+				  <label class="reactions--label">
+						<input type="radio" name="react" value="😠">
+						😠
+					</label>
+				</div>
+				<input type="text" name="comment" placeholder="comment"/>
+				<input type="submit" value=Send />
 			</form>
-		</td>
-	</tr>
-{% endfor %}
-</table>
-</br>
-</br>
-</br>
-<a href="/logout">Logout</a>
+		</section>
+	{% endfor %}
 
-</body>
+</main>
+{% endblock %}
 
 
-</html>
+{% block footer %}
+	<!-- javascript -->
+	<script type="text/javascript" src="{{ url_for('static', filename='js/groups.js') }}"></script>
+{% endblock %}

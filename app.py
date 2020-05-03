@@ -1,10 +1,17 @@
 import time
-
+import os
 import pymysql.cursors
-from flask import Flask, redirect, render_template, request, session, url_for
+import hashlib
+from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
+from werkzeug.utils import secure_filename
 
+# upload folder
+UPLOAD_FOLDER = ".\\uploads"
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+SALT = 'Felicity_Ng_CS-UY_3083'
 # Initialize the app from Flask
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Configure MySQL
 conn = pymysql.connect(host='localhost',
@@ -15,88 +22,31 @@ conn = pymysql.connect(host='localhost',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
-# Define a route to hello function
-@app.route('/')
 def hello():
+    # cursor = conn.cursor()
+    # query = 'SELECT * FROM person'
+    # cursor.execute(query)
+    # data = cursor.fetchall()
+    # for row in data:
+    #     password = row.get("password")
+    #     password = password + SALT
+    #     hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    #     username = row.get("username")
+    #     query = 'UPDATE person SET password = %s WHERE username = %s'
+    #     cursor.execute(query, (hashed_password, username))
+    #     conn.commit()
+    # cursor.close()
     return render_template('index.html')
 
-# Define route for login
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
-# Define route for register
-@app.route('/register')
-def register():
-    return render_template('register.html')
-
-# Authenticates the login
-@app.route('/loginAuth', methods=['GET', 'POST'])
-def loginAuth():
-    # grabs information from the forms
-    username = request.form['username']
-    password = request.form['password']
-
-    # cursor used to send queries
-    cursor = conn.cursor()
-    # executes query
-    query = 'SELECT * FROM person WHERE username = %s AND password = %s'
-    cursor.execute(query, (username, password))
-    # stores the results in a variable
-    data = cursor.fetchone()
-    # use fetchall() if you are expecting more than 1 data row
-    cursor.close()
-    if(data):
-        # creates a session for the the user
-        # session is tied to flask request context
-        session['username'] = username
-        return redirect(url_for('home'))
-    else:
-        # returns an error message to the html page
-        error = 'Invalid login or username'
-        return render_template('login.html', error=error)
-
-# Authenticates the register
-@app.route('/registerAuth', methods=['GET', 'POST'])
-def registerAuth():
-    # grabs information from the forms
-    firstName = request.form['firstName']
-    lastName = request.form['lastName']
-    email = request.form['email']
-    username = request.form['username']
-    password = request.form['password']
-
-    # cursor used to send queries
-    cursor = conn.cursor()
-    # executes query
-    query = 'SELECT * FROM person WHERE username = %s'
-    cursor.execute(query, (username))
-    # stores the results in a variable
-    data = cursor.fetchone()
-    # use fetchall() if you are expecting more than 1 data row
-    if(data):
-        # If the previous query returns data, then user exists
-        error = "This user already exists"
-        return render_template('register.html', error=error)
-    else:
-        ins = 'INSERT INTO person (username, password, firstName, lastName, email) VALUES (%s, %s, %s, %s, %s)'
-        # cursor.execute(ins, (firstName, lastName, email, username, password))
-        cursor.execute(ins, (username, password, firstName, lastName, email))
-        conn.commit()
-        cursor.close()
-        return render_template('index.html')
-
+@app.route('/')
 @app.route('/home')
 def home():
+    if not session.get('logged_in'):
+        return render_template('index.html')
     user = session['username']
     cursor = conn.cursor()
-    # query = """
-    #         SELECT * FROM photo
-    #         WHERE poster = %s
-    #         ORDER BY postingDate DESC
-    #         """
     query = """
-            SELECT DISTINCT pID, postingDate, filePath, caption, firstName, lastName
+            SELECT DISTINCT pID, postingDate, filePath, caption, firstName, lastName, username
             FROM photo JOIN person ON(photo.poster=person.username)
             WHERE pID in
                 (SELECT pID
@@ -141,34 +91,115 @@ def home():
     cursor.close()
     return render_template('home.html', username=user, posts=posts, groups=groups, reacts=reacts)
 
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
+# Authenticates the login
+@app.route('/loginAuth', methods=['GET', 'POST'])
+def loginAuth():
+    # grabs information from the forms
+    username = request.form['username']
+    password = request.form['password']+SALT
+    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+    # executes query
+    query = 'SELECT * FROM person WHERE username = %s AND password = %s'
+    cursor.execute(query, (username, hashed_password))
+    # stores the results in a variable
+    data = cursor.fetchone()
+    # use fetchall() if you are expecting more than 1 data row
+    cursor.close()
+    if(data):
+        # creates a session for the the user
+        # session is tied to flask request context
+        session['logged_in'] = True
+        session['username'] = username
+        return redirect(url_for('home'))
+    else:
+        # returns an error message to the html page
+        error = 'Invalid login or username'
+        return render_template('index.html', loginError=error)
+
+# Authenticates the register
+@app.route('/registerAuth', methods=['GET', 'POST'])
+def registerAuth():
+    # grabs information from the forms
+    firstName = request.form['firstName']
+    lastName = request.form['lastName']
+    email = request.form['email']
+    username = request.form['username']
+    password = request.form['password']+SALT
+    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+    # executes query
+    query = 'SELECT * FROM person WHERE username = %s'
+    cursor.execute(query, (username))
+    # stores the results in a variable
+    data = cursor.fetchone()
+    # use fetchall() if you are expecting more than 1 data row
+    if(data):
+        # If the previous query returns data, then user exists
+        error = "This user already exists"
+        return render_template('register.html', registerError=error)
+    else:
+        ins = 'INSERT INTO person (username, password, firstName, lastName, email) VALUES (%s, %s, %s, %s, %s)'
+        # cursor.execute(ins, (firstName, lastName, email, username, password))
+        cursor.execute(ins, (username, hashed_password, firstName, lastName, email))
+        conn.commit()
+        cursor.close()
+        return render_template('index.html')
+
 @app.route('/post', methods=['GET', 'POST'])
 def post():
-    username = session['username']
-    cursor = conn.cursor()
-    photo = request.form['photo']
-    caption = request.form['caption']
-    followers = request.form.getlist('followers')
-    timeString = time.strftime('%Y-%m-%d %H:%M:%S')
-    query = 'INSERT INTO photo (postingDate, filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
-    if(len(followers) > 0):
-        if(followers[0] == "all"):
-            # all followers
-            cursor.execute(query, (timeString, photo, 1, caption, username))
-            conn.commit()
-        else:
-            cursor.execute(query, (timeString, photo, 0, caption, username))
-            conn.commit()
+    if request.method == 'POST':
+        username = session['username']
+        cursor = conn.cursor()
+        # check if the post request has the file part
+        if 'photo' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['photo']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+
+            caption = request.form['caption']
+            followers = request.form.getlist('followers')
+            timeString = time.strftime('%Y-%m-%d %H:%M:%S')
+            query = 'INSERT INTO photo (postingDate, filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
+            # WHAT HAPPENS IF NOTHING CHOSEN???
+            if(len(followers) > 0 and followers[0] == "all"):
+                # all followers
+                cursor.execute(query, (timeString, filename, 1, caption, username))
+                conn.commit()
+            else:
+                cursor.execute(query, (timeString, filename, 0, caption, username))
+                conn.commit()
             query = 'SELECT LAST_INSERT_ID()'
             cursor.execute(query)
             pID = cursor.fetchall()
             pID = pID[0].get('LAST_INSERT_ID()')
-            print(pID)
-            query = 'INSERT INTO sharedwith (pID, groupName, groupCreator) VALUES(%s, %s, %s)'
-            for group in followers:
-                info = group.split(';')
-                cursor.execute(query, (pID, info[0], info[1]))
-                conn.commit()
-    cursor.close()
+            if(len(followers) > 0 and followers[0] != "all"):
+                query = 'INSERT INTO sharedwith (pID, groupName, groupCreator) VALUES(%s, %s, %s)'
+                for group in followers:
+                    info = group.split(';')
+                    cursor.execute(query, (pID, info[0], info[1]))
+                    conn.commit()
+            filename = str(pID) + "_" + filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            query = 'UPDATE photo SET filePath = %s WHERE pID = %s'
+            cursor.execute(query, (filename, pID))
+            conn.commit()
+        cursor.close()
     return redirect(url_for('home'))
 
 @app.route('/react', methods=['GET', 'POST'])
@@ -180,7 +211,7 @@ def react():
     comment = request.form['comment']
 
     query = 'SELECT * FROM reactto WHERE pID = %s AND username = %s'
-    cursor.execute(query, (username, photo))
+    cursor.execute(query, (photo, username))
     data = cursor.fetchone()
     if(not data):
         query = 'INSERT INTO reactto (username, pID, reactionTime, comment, emoji) VALUES(%s, %s, %s, %s, %s)'
@@ -196,9 +227,8 @@ def react():
 
 @app.route('/connections')
 def connections():
-    # check that user is logged in
-    # username = session['username']
-    # should throw exception if username not found
+    if not session.get('logged_in'):
+        return render_template('index.html')
     user = session['username']
 
     cursor = conn.cursor();
@@ -227,7 +257,6 @@ def connections():
 @app.route('/follow', methods=['GET', 'POST'])
 def follow():
     user = session['username']
-    #grabs information from the forms
     followee = request.form['followee']
 
     cursor = conn.cursor();
@@ -239,7 +268,6 @@ def follow():
         ins = 'INSERT INTO follow (follower, followee, followStatus) VALUES(%s, %s, %s)'
         cursor.execute(ins, (user, followee, 0))
         conn.commit()
-
     cursor.close()
     return redirect(url_for('connections'))
 
@@ -261,45 +289,37 @@ def approvefollow():
 def rejectfollow():
     user = session['username']
     #grabs information from the forms
+    followee = request.form['followee']
     follower = request.form['follower']
 
     cursor = conn.cursor();
 
     query = 'DELETE FROM follow WHERE followee = %s AND follower = %s'
-    cursor.execute(query, (user, follower))
+    cursor.execute(query, (followee, follower))
     conn.commit()
     cursor.close()
     return redirect(url_for('connections'))
 
-@app.route('/show_posts', methods=["GET", "POST"])
-def show_posts():
-    poster = request.args['poster']
-    cursor = conn.cursor()
-    query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-    cursor.execute(query, poster)
-    data = cursor.fetchall()
-    cursor.close()
-    return render_template('show_posts.html', poster_name=poster, posts=data)
-
-
 @app.route('/groups')
 def groups():
-    # check that user is logged in
-    #username = session['username']
-    # should throw exception if username not found
-
+    if not session.get('logged_in'):
+        return render_template('index.html')
     user = session['username']
     cursor = conn.cursor()
-    query = 'SELECT * FROM belongto WHERE username = %s'
+    query = 'SELECT groupName, description, groupCreator FROM belongto NATURAL JOIN friendgroup WHERE username = %s'
     cursor.execute(query, (user))
-    data = cursor.fetchall()
+    userGroups = cursor.fetchall()
+
+    query = 'SELECT * FROM belongto WHERE (groupName, groupCreator) IN (SELECT groupName, groupCreator FROM belongto WHERE username = %s)'
+    cursor.execute(query, (user))
+    membersOfGroup = cursor.fetchall()
 
     query = 'SELECT * FROM person WHERE username != %s'
     cursor.execute(query, (user))
-    otherUsersData = cursor.fetchall()
+    listOfOtherUsers = cursor.fetchall()
 
     cursor.close()
-    return render_template('groups.html', username=user, availableUsers=otherUsersData, group_list=data)
+    return render_template('groups.html', username=user, availableUsers=listOfOtherUsers, group_list=userGroups, memberList=membersOfGroup)
 
 # Create new group
 @app.route('/newgroup', methods=['GET', 'POST'])
@@ -347,19 +367,21 @@ def newgroup():
             ins = 'INSERT INTO belongto (username, groupName, groupCreator) VALUES(%s, %s, %s)'
             cursor.execute(ins, (member, groupName, user))
             conn.commit()
-
-        query = 'SELECT * FROM belongto WHERE username = %s'
-        cursor.execute(query, (user))
-        data = cursor.fetchall()
-        cursor.close()
-        return redirect(url_for('connections'))
-
+        return redirect(url_for('groups'))
 
 @app.route('/logout')
 def logout():
+    session['logged_in'] = False
     session.pop('username')
     return redirect('/')
 
+@app.route('/uploads/<path:filename>')
+def uploads(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000

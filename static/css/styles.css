@@ -1,0 +1,247 @@
+.displayNone{
+  display: none !important;
+}
+
+body{
+  display: flex;
+  justify-content: center;
+  font-family: 'Ubuntu', sans-serif;
+  margin: 0px;
+  padding: 0px;
+  background-color: #F0F2F5;
+}
+.indexBody{
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.loginForm{
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  max-width: 375px;
+  background-color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  border: 1px solid #757575;
+  margin: 10px;
+  border-radius: 10px;
+}
+.loginForm > input{
+  width: 100%;
+  box-sizing: border-box;
+  margin: 5px 0px;
+}
+.loginForm--submitLine{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+.loginForm--submitLine input[type=submit]{
+  width: 30%;
+}
+.error{
+  color: #C50000;
+  font-size: 0.75em;
+  margin: 0px;
+}
+
+.smallRedirectText{
+  font-size: 0.75em;
+  margin: 0px;
+  margin-top: 20px;
+}
+
+header{
+  position: fixed;
+  width: 100%;
+  z-index: 0;
+}
+
+.topHeader {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 10px 20px;
+  border: 1px solid black;
+}
+
+.topHeader--link{
+  text-decoration: none;
+  color: black;
+  font-size: 1em;
+}
+.topHeader--link__main{
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 1.25em;
+}
+
+.sidebar{
+  width: 15%;
+  height: 100%;
+  top: 50px;
+  left: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 50px 20px;
+  box-sizing: border-box;
+  border: 1px solid black;
+}
+.sidebar--link{
+  text-decoration: none;
+  color: black;
+  font-size: 1em;
+  margin-bottom: 30px;
+}
+
+main{
+  margin-top: 50px;
+  width: 50%;
+  max-width: 600px;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+h1{
+  font-family: 'Lato', sans-serif;
+}
+
+h2, b{
+  font-weight: 500;
+}
+
+input[type=text], input[type=email], input[type=password]{
+  border-radius: 3px;
+  border: 1px solid #757575;
+  padding: 5px 10px;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1em;
+}
+input[type=submit]{
+  color: white;
+  background-color: #0085C4;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 500;
+  font-size: 1em;
+}
+
+.post{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 50px;
+  background-color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid #ffb3ff;
+}
+
+.post--name{
+  font-size: 1em;
+  margin: 5px 0px;
+}
+
+.post--image{
+  width: 100%;
+  margin: 10px 0px 20px 0px;
+}
+
+ .post--caption, .post--timestamp{
+   margin-bottom: 10px;
+ }
+
+.post--timestamp{
+  font-size: 0.75em;
+}
+
+.comments{
+  width: 100%;
+}
+
+.reactions{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+details{
+  /* width: 100%; */
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+details > * {
+  cursor: auto;
+}
+
+.postForm{
+  width: 100%;
+  border: 1px solid #ffb3ff;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+.postForm > input{
+  width: 100%;
+  box-sizing: border-box;
+  margin: 5px 0px;
+}
+.postForm > input[type=submit]{
+  width: 50%;
+  box-sizing: border-box;
+  margin-top: 20px;
+}
+
+#postForm--groups{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin: 15px 0px;
+}
+#postForm--groups > p{
+  margin: 0px;
+}
+
+.requestList{
+  padding: 0px;
+}
+
+.followRequest{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid #ffb3ff;
+  margin-bottom: 25px;
+}
+.followRequest--username, .followRequest--additionalInfo{
+  margin: 0px;
+}
