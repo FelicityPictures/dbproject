@@ -23,19 +23,6 @@ conn = pymysql.connect(host='localhost',
                        cursorclass=pymysql.cursors.DictCursor)
 
 def hello():
-    # cursor = conn.cursor()
-    # query = 'SELECT * FROM person'
-    # cursor.execute(query)
-    # data = cursor.fetchall()
-    # for row in data:
-    #     password = row.get("password")
-    #     password = password + SALT
-    #     hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
-    #     username = row.get("username")
-    #     query = 'UPDATE person SET password = %s WHERE username = %s'
-    #     cursor.execute(query, (hashed_password, username))
-    #     conn.commit()
-    # cursor.close()
     return render_template('index.html')
 
 @app.route('/')
@@ -65,6 +52,25 @@ def home():
     cursor.execute(query, (user, user, user))
     posts = cursor.fetchall()
 
+    query = """
+            SELECT pID, username, firstName, lastName
+            FROM tag NATURAL JOIN person
+            WHERE tagStatus=1 AND pID in
+                (SELECT pID
+                FROM sharedwith NATURAL JOIN belongto
+                WHERE username = %s
+                UNION
+                SELECT pID
+                FROM Photo JOIN Follow ON(poster=followee)
+                WHERE allFollowers=true AND followStatus=true AND follower = %s
+                UNION
+                SELECT pID
+                FROM photo
+                WHERE poster = %s)
+            """
+    cursor.execute(query, (user, user, user))
+    tags = cursor.fetchall()
+
     query = 'SELECT groupName, groupCreator FROM belongto WHERE username = %s'
     cursor.execute(query, (user))
     groups = cursor.fetchall()
@@ -89,7 +95,7 @@ def home():
     reacts = cursor.fetchall()
 
     cursor.close()
-    return render_template('home.html', username=user, posts=posts, groups=groups, reacts=reacts)
+    return render_template('home.html', username=user, posts=posts, tags=tags, groups=groups, reacts=reacts)
 
 @app.route('/register')
 def register():
